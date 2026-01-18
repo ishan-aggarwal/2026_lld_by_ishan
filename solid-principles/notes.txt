@@ -1,0 +1,485 @@
+// SOLID Design Principles
+
+// S -> Single Responsibility Principle
+
+class Product {
+	String name;
+	double price;
+}
+
+class Invoice {
+	Product product;
+	int quantity;
+
+	// constructor
+
+	// calculating the invoice amount
+
+	public double totalPrice() {
+		return this.quantity * this.product.price;
+	}
+
+	// printing the invoice in some format
+	public void printingInvoice() {
+		sout("Printing invoice to a PDF" + totalPrice());
+	}
+
+	// saving the amount to some db/file
+	public void saveInvoice() {
+		sout("Invoice saved to the DB/File");
+	}
+}
+
+
+class Product {
+	String name;
+	double price;
+}
+
+class Invoice {
+	Product product;
+	int quantity;
+
+	// constructor
+
+	// calculating the invoice amount
+	public double totalPrice() {
+		return this.quantity * this.product.price;
+	}
+}
+
+class InvoicePrinter {
+	Invoice invoice;
+	// constructor
+	public void printingInvoice() {
+		sout("Printing invoice to a PDF" + totalPrice());
+	}
+}
+
+class InvoiceSaver {
+	// saving the amount to some db/file
+	public void saveInvoice() {
+		sout("Invoice saved to the DB/File");
+	}
+}
+
+---
+
+class Report {
+	String generateReport() {
+
+	}
+
+	printingReport() {
+
+	}
+
+	savingReport() {
+
+	}
+}
+
+ReportSaver
+
+ReportPrinter
+
+----------------------------------------------------------
+
+// OCP -> Open Closed Design Principle
+
+class Product {
+	String name;
+	double price;
+}
+
+class Invoice {
+	Product product;
+	int quantity;
+
+	// constructor
+
+	// calculating the invoice amount
+	public double totalPrice() {
+		return this.quantity * this.product.price;
+	}
+}
+
+class InvoicePrinter {
+	Invoice invoice;
+	// constructor
+	public void printingInvoice() {
+		sout("Printing invoice to a PDF" + totalPrice());
+	}
+}
+
+// OCP -> voilation
+
+class InvoiceSaver {
+	Invoice invoice;
+
+	// saving the amount to some db/file
+	public void saveInvoice(String input) {
+		if ("file".equals(input)) {
+			sout("Invoice saved to the file" + invoice);
+		} else if ("DB".equals(input)) {
+			sout("Invoice saved to the DB" + invoice);
+		} else if ("cloud".equals(input)) {
+			sout("Invoice saved to the cloud" + invoice);
+		}
+	}
+}
+
+// solution
+
+interface InvoiceSaver {
+	protected Invoice invoice;
+	public(Invoice invoice) {
+		this.invoice = invoice;
+	}
+
+	void save();
+}
+
+class DBInvoiceSaver implements InvoiceSaver {
+
+	public DBInvoiceSaver(Invoice invoice) {
+		super(invoice);
+	}
+
+	public void save() {
+		sout("Invoice saved to the DB" + invoice);
+	}
+}
+
+class FileInvoiceSaver implements InvoiceSaver {
+	public void save() {
+		sout("Invoice saved to the File" + invoice);
+	}
+}
+
+class CloudInvoiceSaver implements InvoiceSaver {
+	public void save() {
+		sout("Invoice saved to the Cloud" + invoice);
+	}
+}
+
+----------------------------------------------------------
+
+// L -> LSP
+
+P -> C
+every parent should be replaceable by its subtype...
+
+abstract class Bird {
+	 void fly(){
+		 sout("default fly behaviour");
+	 }
+
+	 void eat(); {
+	 }
+}
+
+class Crow extends Bird {
+	public void fly() {
+		sout("Crow is flying");
+	}
+	public void eat() {
+		sout("Crow is eating");
+	}
+}
+
+class Penguine extends Bird {
+	public void fly() {
+		throw new UnsupportedOperationException("operation fly not supported");
+	}
+	public void eat() {
+		sout("Penguine is eating");
+	}
+}
+
+class Client {
+	main() {
+		Bird bird = new Crow();
+		bird.fly();
+		bird.eat();
+
+		bird = new Penguine();
+		bird.fly(); // UnsupportedOperationException
+		bird.eat();
+	}
+}
+
+//
+
+abstract class Bird {
+	abstract void eat();
+}
+
+interface Flyable {
+	void fly();
+}
+
+class Crow extends Bird implements Flyable {
+	public void fly() {
+		sout("Crow is flying");
+	}
+	public void eat() {
+		sout("Crow is eating");
+	}
+}
+
+class Penguine extends Bird {
+	public void eat() {
+		sout("Penguine is eating");
+	}
+}
+
+class Client {
+	main() {
+		A           -->  B
+ 		Bird bird = new Crow();
+		bird.eat();
+
+		bird = new Penguine();
+		bird.eat();
+
+		Flyable bird1 = new Crow();
+		bird1.fly();
+	}
+}
+
+// Poly morphism -> it is like taking more than form
+
+// compile (static) and runtime (dynamic) --> method overriding
+
+sum(int a, int b)
+
+sum(int a, int b, int c)
+
+class A {
+
+}
+
+class B extends A {
+
+}
+
+class Client {
+	main() {
+		A obj = new A();
+		A obj1 = new B();
+	}
+}
+
+----------------------------------------------------------
+
+// ISP -> Interface segregation principle
+
+interface CloudProvider {
+	void addServer();
+	void printServers();
+	void printCDNAddress();
+	void addFileToCloud();
+	void downloadFileFromCloud();
+}
+
+class AWSCloud implements CloudProvider {
+	public void addServer() { sout("adding a server");}
+	public void printServers() { }
+	public void printCDNAddress() { }
+	public void addFileToCloud() { }
+	public void downloadFileFromCloud() {}
+}
+
+class DropBox implements CloudProvider {
+	public void addServer() {
+		// do nothing
+	}
+	public void printServers()
+	{
+		// do nothing
+	}
+	public void printCDNAddress()
+	{
+		// do nothing
+	}
+	public void addFileToCloud() { sout("addding file");}
+	public void downloadFileFromCloud() { sout("downloading files");
+}
+
+
+interface CDNCloudProvider {
+	void printCDNAddress();
+}
+
+interface StorageCloudProvider {
+	void addFileToCloud();
+	void downloadFileFromCloud();
+}
+
+interface VMCloudProvider {
+	void addServer();
+	void printServers();
+}
+
+class AWSCloud implements CDNCloudProvider,StorageCloudProvider,VMCloudProvider  {
+	public void addServer() { sout("adding a server");}
+	public void printServers() { }
+	public void printCDNAddress() { }
+	public void addFileToCloud() { }
+	public void downloadFileFromCloud() {}
+}
+
+
+class DropBox implements StorageCloudProvider {
+	public void addFileToCloud() { sout("addding file");}
+	public void downloadFileFromCloud() { sout("downloading files");
+}
+
+
+----------------------------------------------------------
+
+// DI -> dependency inversion
+
+// no two concrete classes should be directly talking to each other...
+
+// talk in terms of abstraction...
+
+// asbtract/ interfaces
+
+// loose coupling...
+
+class Laptop {
+	WiredKeyboard keyboard;
+	WiredMouse mouse;
+
+	public Laptop(WiredKeyboard keyboard, WiredMouse mouse) {
+		this.keyboard = keyboard;
+		this.mouse = mouse;
+	}
+}
+
+class WiredKeyboard {
+}
+
+class WiredMouse {}
+///
+
+abstract class Keyboard { }
+class WiredKeyboard extends Keyboard {}
+class BluetoothKeyboard extends Keyboard {}
+class NewKeyboard extends Keyboard {}
+
+abstract class Mouse { }
+class WiredMouse extends Mouse { }
+class BluetoothMouse extends Mouse { }
+
+// concrete class
+class Laptop {
+	Keyboard keyboard;
+	Mouse mouse;
+	public Laptop(Keyboard keyboard, Mouse mouse) {
+		this.keyboard = keyboard;
+		this.mouse = mouse;
+	}
+}
+
+class Client {
+	main() {
+		Keyboard keyboard = new WiredKeyboard();
+		Mouse mouse = new BluetoothMouse();
+		Laptop laptop = new Laptop (keyboard, mouse);
+	}
+}
+
+// List<String> list = new ArrayList<>();
+
+----------------------------------------------------------
+
+// Design Patterns
+--- Creational
+		--- Singleton
+		--- Factory
+		--- Abstract Factory
+		--- Builder
+		--- Prototype
+--- Structural
+--- Behavioural
+
+// Singleton --> creation of objects..
+// we should allow to create maximum one of the object class...
+
+/// database...{ connection , disconnect , execute }
+/// 10 maximum connections...
+/// DatabaseConnectionManager ... singleton...
+
+// ThreadPool (10)
+
+// Configuration system
+
+// class Employee {
+
+}
+
+
+class Singleton implements Cloneable<Singleton> {
+
+	private static Singleton instance = null;
+
+	private Singleton() {
+		if (instance != null) {
+			throw new RuntimeException();
+		}
+	}
+
+	// double check locking
+	public static Singleton getInstance() {
+		// t1, t2 -> 10 pm
+		// t1, t2, t3, t4, t5 - 10:30
+		if (instance == null) {
+			synchronized(Singleton.class) { // synchronized block// class level lock
+			    // T1
+				if (instace == null) {
+					instace = new Singleton();
+				}
+			} //  T2
+		}
+		return instance;
+	}
+
+	public Object readResolve() {
+		return getInstance();
+	}
+
+	public Singleton clone() {
+		return getInstance();
+	}
+}
+
+
+class enum SingletonEnum {
+
+}
+
+// there are different ways to break it...
+// First one is basically reflection --> setAccessible
+// Second ways is Serialization and Desrialization
+// during Desrialization whne you will get the objet back -> then you will get a new object always
+// by Cloning
+
+
+
+class client {
+	main() {
+		Singleton object = Singleton.getInstance();
+		sout(object.hashcode());
+		// serialise
+		// desrialise
+		// object1
+		sout(object1.hashcode());
+	}
+
+}
+
+
+----------------------------------------------------------
