@@ -94,17 +94,27 @@ Treats individual objects and compositions of objects uniformly.
 ## 4. Decorator
 
 **What it is**
-Adds behavior to an object dynamically without modifying its class.
+
+* Adds behavior to an object dynamically without modifying its class.
+* Adds responsibilities to an object dynamically at runtime by wrapping it, without changing its original class.
+* Favors composition over inheritance
+* Behavior is layered via wrappers, not hardcoded via subclasses
 
 **When to use it (real-world signal)**
 
-* You need optional or combinable features
-* Inheritance would lead to too many subclasses
+* You need optional or combinable behaviors
+* Subclassing would cause class explosion
+* Behavior should be attachable without affecting other objects
 
 **Example scenarios**
 
-* Adding compression or encryption to streams
+* Adding compression, buffering, or encryption to streams
 * Enhancing notifications with logging, retry, or auditing
+
+**Note**
+
+Decorator avoids class explosion by composing behaviors dynamically, while Bridge avoids class explosion by separating
+abstraction and implementation so both can vary independently.
 
 ---
 
