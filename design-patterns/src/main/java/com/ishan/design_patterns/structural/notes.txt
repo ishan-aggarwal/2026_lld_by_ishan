@@ -1,0 +1,415 @@
+// Structural DP - ABCDFFP
+// Adapter
+// Bridge
+// Composite
+// Decorator
+// Facade
+// Flyweight
+// Proxy
+
+// Adapter DP -
+
+// payment_system
+// payment amount, user_details;
+
+// external
+
+StripePaymentAPI {
+	public String makePayment(String user, double amount) {
+		///
+		return "Success";
+	}
+}
+
+PaypalPaymentAPI {
+	public boolean sendPayment(String user, double amount) {
+		///
+		return true;
+	}
+}
+
+RazorPayAPI {
+	public int pay(double amount, String user) {
+		///
+		return 1/0;
+	}
+}
+
+// unified payment interface
+
+class PaymentRequest {
+	String user;
+	double amount;
+}
+
+interface PaymentProcessorAdapter {
+	boolean pay(PaymentRequest paymentRequest);
+}
+
+class StripePaymentAPIAdapter implements PaymentProcessorAdapter {
+
+	StripePaymentAPI api = new StripePaymentAPI();
+
+	boolean pay(PaymentRequest paymentRequest) {
+		String result = api.makePayment(paymentRequest.user, paymentRequest.amount);
+		if ("Success".equals(result)) {
+			return true;
+		}
+		return false;
+	}
+}
+
+class Client {
+	main() {
+		PaymentRequest req = new PaymentRequest("u1", 100);
+		PaymentProcessorAdapter paymentProcessor = new StripePaymentAPIAdapter();
+
+		paymentProcessor.pay(req);
+	}
+
+}
+
+
+// Bridge --> use-case to avoid class explosion...
+
+
+Car -> Sedan and SUV
+
+Engine -> Petrol , Diesel and Electric, ......
+
+m * n
+
+abstract class Car {
+	protected Engine engine;
+	public Car(Engine engine) {
+		this.engine = engine;
+	}
+}
+
+class Sedan extends Car {
+	public Sedan(Engine e) {
+		super(e);
+	}
+}
+
+class SUV extends Car {
+	public SUV(Engine e) {
+		super(e);
+	}
+}
+
+
+abstract class Engine { // getConfiguration() }
+class PetrolEngine extends Engine {}
+class DieselEngine extends Engine {}
+class ElectricEngine extends Engine { }
+
+
+class Client {
+	main() {
+		Engine e1 = new PetrolEngine();
+		Engine e2 = new DieselEngine();
+		Engine e3 = new ElectricEngine();
+
+		Car suv = new SUV(e1);
+		Car suv1 = new SUV(e2);
+		Car suv2 = new SUV(e3);
+
+		Car sedan = new Sedan(e1);
+		Car sedan1 = new Sedan(e2);
+		Car sedan2 = new Sedan(e3);
+	}
+}
+
+// Composite
+// it basically says whether you have just one or if you have multiple/ composed object - can we treat it in a similar manner...
+
+FileSystem... files and directories...
+// ls -> long listing ls -lrth
+
+
+class File {
+	String name;
+	// constructor
+
+	public void ls() {
+		sout("file : " + name);
+	}
+}
+
+class Directory {
+	String name;
+	List<Object> list = new ArrayList<>();
+
+	// constructor
+
+	public void add(Object obj) {
+		list.add(obj);
+	}
+
+	public void ls() {
+		sout("directory : " + name);
+		for (int i = 0; i < list.size(); i++) {
+				Object obj = list.get(i);
+		}
+
+		for (Object obj : list) {
+			if (obj instanceOf File) {
+				sout("file : " + name);
+			} else if (obj instanceOf Directory) {
+				((Directory) obj).ls();
+			} else if ( ) {
+
+			}
+		}
+	}
+}
+
+
+// solution
+interface FileSystemComponent {
+	void ls();
+}
+
+class File implements FileSystemComponent {
+	String name;
+	// constructor
+
+	public void ls() {
+		sout("file : " + name);
+	}
+}
+
+class Directory implements FileSystemComponent {
+	String name;
+	List<FileSystemComponent> list = new ArrayList<>();
+
+	// constructor
+
+	public void add(FileSystemComponent obj) {
+		list.add(obj);
+	}
+
+	public void ls() {
+		sout("directory : " + name);
+		for (FileSystemComponent obj : list) {
+			obj.ls();
+		}
+	}
+}
+
+
+class client {
+	main() {
+
+		Directory root = new Directory("root");
+
+		root.add(new File("f1"));
+
+		Directory subDir1  = new Directory("subDir1");
+		subDir1.add(new File("sf1"));
+
+		root.add(subDir1);
+
+		root.ls(); // root
+
+					// f1
+					// subDir1
+					// sf1
+	}
+}
+
+
+
+// Decorator DP
+
+abstract class Pizza {
+	abstract int cost();
+}
+
+class FHP extends Pizza {
+	public int cost() { return 200; }
+}
+
+class MP extends Pizza  {
+	public int cost() { return 150; }
+}
+
+// IS-A and HAS-A
+
+abstract class ToppingDecorator extends Pizza {
+	protected Pizza pizza; // has-a
+
+	public ToppingDecorator(Pizza pizza) {
+		this.pizza = pizza;
+	}
+}
+
+// extra veggies
+class EVT extends ToppingDecorator {
+
+	public EVT(Pizza pizza) {
+		super(pizza);
+	}
+
+	public int cost() {
+		return this.cost() + 50;
+	}
+}
+
+// extra cheese
+class ECT extends ToppingDecorator {
+
+	public EVT(Pizza pizza) {
+		super(pizza);
+	}
+
+	public int cost() {
+		return this.cost() + 100;
+	}
+}
+
+class Main {
+	main() {
+		Pizza p = new ECT(new EVT(new FHP()));
+		p.cost();// 200 + 50 + 100 = 350
+	}
+}
+
+// Facade -> complex activity ... someone says I can do it for you...
+// plan a trip
+// delhi to goa
+// flights (airlines),
+// hotel (hotel reservation system)
+// cabs (uber/ola)
+// sight seing (planner)
+
+// MakeMyTrip
+// --> travel dates, flight, hotel, cabs, places you want to visit.
+
+
+class BookingProcessor {
+	AirlineService as;
+	HotelReservationService hrs;
+	CabService cs;
+
+	public boolean book(dates, airline preference , asdas) {
+
+		// result = as.bookflight();
+		// booking hotel
+		// booking cabs
+	}
+}
+
+class BookingManager {
+
+	BookingProcessor procssor;
+
+	public boolean book(dates, airline preference , asdas) {
+
+		procssor.book()
+	}
+
+}
+
+
+// Flyweight -> tries to optimise the memory for you..
+// User who wants to play some chess
+
+// attributes
+class ChessUser {
+	String name;
+	int age;
+	byte[] photo;
+	String gender;
+	String email;
+	String phoneNumber;
+
+	int winningStreak; // 0, 1, 2...
+	int totalGameStreak; // 1.2..3.4..5..6.7
+	Colour color; // White/Black
+}
+
+ChessUser -> 9 * 4 bytes = 40 bytes... 10 * 100 (400 bytes)
+400 * 100 = 40KB
+
+classification of these attributes
+// Intrinsic propeties --> those are internal to you and don't change by external factors
+// Extrensic properties --> these properties changes over time and are impacted by external factors
+
+6 -> 24 bytes.. object
+class ChessIntrinsciUser {
+	String name;
+	int age;
+	byte[] photo;
+	String gender;
+	String email;
+	String phoneNumber;
+}
+
+3 = 12 * 10 = 120 + 24; 150 bytes
+class ChessExtrinsicUser {
+    ChessIntrinsciUser intrisic;
+	int winningStreak; // 0, 1, 2...
+	int totalGameStreak; // 1.2..3.4..5..6.7
+	Colour color; // White/Black
+}
+
+interface ChessUserRegistry {
+	void addPlayer(ChessIntrinsciUser user);
+
+	ChessIntrinsciUser getPlayer(String email);
+}
+
+class ChessUserRegistryImpl implements ChessUserRegistry {
+
+	Map<String, ChessIntrinsciUser> map = new HashMap<>();
+
+	public void addPlayer(ChessIntrinsciUser user) {
+		map.put(user.email,user);
+	}
+
+	public ChessIntrinsciUser getPlayer(String email) {
+		return map.get(email);
+	}
+}
+
+// Proxy design pattern --> controlled access
+
+//
+interface Document {
+	void read();
+}
+
+class RealDocument implements Document {
+	public void read() {
+		sout("Reading sensitive document");
+	}
+}
+
+class RealDocumentProxy implements Document {
+	private Srting userRole;
+	private RealDocument realDocument;
+
+	public RealDocumentProxy(Srting userRole) {
+		this.userRole = userRole;
+		this.realDocument = new RealDocument();
+	}
+
+	public void read() {
+		if (!"ADMIN".equals(userRole)) {
+			throw new RuntimeException("you are not authrorized to view the document");
+		}
+
+		if (realDocument == null) {
+			realDocument = new RealDocument();
+		}
+
+		realDocument.read();
+	}
+}
+
+main() {
+	Document document = new RealDocumentProxy("ADMIN");
+	document.read();
+}
