@@ -1,0 +1,467 @@
+// creational - 5
+// structural - 7
+// behavioural -- 10
+
+// CCI -> Chain of responsibility, Command, Iterator design pattern
+// MOM -> Mediator, Observe (important), Momento
+// SSTV -> State, Strategy (V.Important), Template, Visitor (V good design pattern)
+
+// Chain of responsibility, logging
+// debug, info, error...
+// Logging Level -> debug , info , error
+
+public abstract class Logger {
+	protected Logger next;
+
+	public void setNext(Logger next) { this.next = next; }
+
+	public abstract void log(LogLevel level, String msg);
+}
+
+public class DebugLogger extends Logger {
+	public void log(LogLevel level, String msg) {
+		if (level == LogLevel.debug) {
+			sout("DEBUG:" + msg);
+		} else if (next != null) {
+			next.log(level, msg);
+		}
+	}
+}
+
+public class InfoLogger extends Logger {
+	public void log(LogLevel level, String msg) {
+		if (level == LogLevel.info) {
+			sout("INFO: " + msg);
+		} else if (next != null) {
+			next.log(level, msg);
+		}
+	}
+}
+
+public class ErrorLogger extends Logger {
+	public void log(LogLevel level, String msg) {
+		if (level == LogLevel.error) {
+			sout("ERROR:" + msg);
+		}
+	}
+}
+
+LogLevel -> DEBUG, INFO, ERROR
+
+LogFactory {
+	static Logger debugLogger = new DebugLogger();
+	static Logger infoLogger = new InfoLogger();
+	static Logger errorLogger = new ErrorLogger();
+
+	Map<LogLevel, logger> map
+
+	static {
+		debugLogger.next(infoLogger);
+		infoLogger.next(errorLogger);
+	}
+
+	public static Logger getLogger(LogLevel leve) {
+		return map.get(level);
+
+		switch(level)
+		debug: return debugLogger;
+		info: return infoLogger;
+		error: return errorLogger;
+	}
+}
+
+client {
+	main() {
+		Logger infoLogger = LogFactory.getLogger(LogLevel.info);
+
+		infoLogger.log(LogLevel.debug, "hello");
+
+
+		Logger debuglogger = LogFactory.getLogger(LogLevel.debug);
+
+		debuglogger.log(LogLevel.debug, "hello");
+		debuglogger.log(LogLevel.info, "hello");
+		debuglogger.log(LogLevel.error, "hello");
+
+	}
+}
+
+// Command Design Pattern -
+
+// who is actually doing the job
+Light {
+	turnOn() {
+		sout("on");
+	}
+
+	turnOff() {
+		sout("off");
+	}
+}
+
+// invoker , user
+class Remote {
+	Light light = new Light();
+	public void action(String action) {
+		if ("on".equals(action)) {
+			light.turnOn();
+		} else if {
+			light.turnOff();
+		}
+	}
+}
+
+// this action basically we want to encapsulate in form a class/.object...
+// you can even hold these objects in a queue... and then work on the operations asynchronously...
+Light {
+	turnOn() {
+		sout("on");
+	}
+
+	turnOff() {
+		sout("off");
+	}
+}
+
+interface Command {
+	void execute();
+}
+
+LightOnCommand implements Command {
+	Light light = new Light();
+	public void execute() {
+		light.turnOn();
+	}
+}
+
+LightOffCommand implements Command {
+	Light light = new Light();
+	public void execute() {
+		light.turnOff();
+	}
+}
+
+class Remote {
+	Command commnad;
+
+	public Remote(Command command) {
+		this.command = command;
+	}
+
+	public void buttonPressed() {
+		command.execute();
+	}
+}
+
+class Client {
+	main() {
+		Light light = new Light();
+		LightOnCommand onCmd = new LightOnCommand(light);
+		LightOffCommand offCmd = new LightOffCommand(light);
+
+		Fan fan = new Fan();
+		FanOnCommand onCmd1 = new FanOnCommand(fan);
+		FanOffCommand offCmd1 = new FanOffCommand(fan);
+
+		Remote remote = new Remote();
+		remote.buttonPressed(offCmd1);
+	}
+}
+
+// template design pattern
+
+// worflow
+abstract class game {
+
+	public final void playgame() {
+		initialise();
+		toss();
+		start();
+		stop();
+	}
+
+	abstract void initialise();
+	abstract void toss();
+	abstract void start();
+	abstract void stop();
+}
+
+class CricketGame extends Game {
+ void initialise() { sout...
+	 void toss(); { sout
+	 void start(); {sout...
+	 void stop(); { sout...
+
+}
+
+class ChessGame extends Game {
+	 void initialise(); {...
+	 void toss(); {
+	 void start(); {
+	 void stop(); {
+}
+
+// strategy design pattern -> actually very important
+class Employee {
+	string name;
+	int age;
+	double salary;
+	String designations;
+}
+List<Employee> sorting operation
+
+Taxi > fare estimates
+
+> peak evening hours...> surge
+>> distance based strategy
+>> time based startegy
+
+class RideDetails {
+	int distance;
+	int time;
+}
+
+
+interface PricingStrategy {
+	double calculateAmount(RideDetails r);
+}
+
+class SurgePricingStrategy implements PricingStrategy {
+	double calculateAmount(RideDetails r) {
+		// base fare * r.distance * 3;
+	}
+}
+
+class DistancePricingStrategy implements PricingStrategy {
+	double calculateAmount(RideDetails r) {
+		// base fare * r.distance;
+	}
+}
+
+class DistancePricingStrategy implements PricingStrategy {
+	double calculateAmount(RideDetails r) {
+		// time fare * r.time;
+	}
+}
+
+class pricingmanager {
+
+	PricingStrategy strategy;
+
+	pricingmanager(PricingStrategy strategy) {
+		this.startegy = startegy;
+	}
+
+	double calculateTotalFare(RideDetails r) {
+		return strategy.calculateAmount(r);
+	}
+}
+
+
+
+// Mediator Design Pattern --> normal message exchange chatting application
+
+// HLD -> polling, long polling --> pull,
+// -> push - SSE, websockets -> bi-directional communication --> normal message exchange
+// WebCRT -- Peer to peer communication
+
+
+
+// Mediator Design Pattern
+
+User --> name
+
+interace ChatClient {
+	protected User user;
+	protected ChatServer server;
+
+	regiser(User user) {
+		this.user = user;
+		server.registration(user, this);
+	}
+
+	public void send(String message) {
+		server.broadcast(this, message);
+	}
+
+	public abstract void receiver(User user, User receiver, String message);
+}
+
+class WhatsappChatClient implements ChatClient {
+
+	public WhatsappChatClient(ChatServer server) {
+		super(server);
+	}
+
+	public void receiver(User user, User receiver, String message) {
+		sout("user: " user.getName() + has sent a message: " + message + " to user
+	}
+}
+
+interface ChatMediator (ChatServer) {
+	void registration(User user, ChatClient client);
+
+	void broadcast(ChatClient client, String message);
+
+}
+
+
+class WhatsAppChatServer  implements ChatMediator {
+	Map<User, ChatClient> map = new HashMap<>();
+
+	public void registration(User user, ChatClient client) {
+		map.put(user, client);
+	}
+
+	public void broadcast(ChatClient client, String message) {
+		// iterate over your map./. entrySet
+		// from the entryset get the value
+		// client
+		// if the client from for loop is not same as the client in input
+		client.receive( sender.key(), entry.getkey(),  message) ;
+	}
+}
+
+
+interface ObserverRegistry {
+	void register(Observer o);
+	void unregister(Observer o);
+	void publish();
+}
+
+
+class ObserverRegistryImpl implements ObserverRegistry {
+
+	List<Observer> observers = new ArrayList<>();
+
+	void register(Observer o) {
+		observers.add(o);
+	}
+
+	void unregister(Observer o) {
+		observers.remove(o);
+	}
+
+	void publish(String newspapercontent) {
+		for (Observer o : observers) {
+			o.door(newspapercontent);
+		}
+	}
+}
+
+interface Observe {
+	door(String value);
+}
+
+class House1 implements Observer {
+	public void door(String value) {
+		// reading
+	}
+}
+
+class House2 implements Observer {
+	public void door(String value) {
+		// reading
+	}
+}
+
+class House3 implements Observer {
+	public void door(String value) {
+		// reading
+	}
+}
+
+/// Visitor design pattern -
+
+inteface Shape {
+	area();
+	perimeter();
+}
+
+class Circle implements Shape {
+	int r;
+	// this.r = r;
+
+	public void area() {
+		// PI * r * r
+	}
+}
+// 2*PI*r
+
+class Square implements Shape {
+	int side;
+
+	public void area() {
+		// side * side;
+	}
+
+	2*(side+side);
+}
+
+// perimiter...
+
+// perfect use-case for visisot...
+
+// classes are fixed but operations will be increased over a period of time
+// then you should not design your classes like we have done/..
+
+
+
+class Circle {
+
+
+}
+
+interface Shape {
+	accept(ShapeVisitor visitor);
+}
+
+class Circle implements Shape {
+
+	accept(ShapeVisitor visitor) {
+		visitor.visit(this);
+	}
+}
+
+class Rectangel
+
+class Square implements Shape {
+	accept(ShapeVisitor visitor) {
+		visitor.visit(this);
+	}
+}
+
+
+interface ShapeVisitor {
+	void visit(Circle circle);
+	void visit(Square sq);
+}
+
+
+class AreaVisitor implements ShapeVisitor {
+	void visit(Circle circle) {
+		sout(2*PI*circle.r);
+	}
+	void visit(Square sq) {
+		sout(2*sq.side*sq.side);
+	}
+}
+
+
+class PerimiterVisitor implements ShapeVisitor {
+	void visit(Circle circle) {
+		// 2*pi*r
+	}
+	void visit(Square sq) {
+		// 2*side+side
+	}
+}
+
+class ThirdVisitor implements ShapeVisitor {
+	void visit(Circle circle) {
+		// 2*pi*r
+	}
+	void visit(Square sq) {
+		// 2*side+side
+	}
+}
